@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from typing import List, Dict, Any
 import uuid
 
-class PostHogEventGenerator:
+class XswEventGenerator:
     def __init__(self):
         self.events = []
         self.user_ids = [f"user_{i}" for i in range(1, 501)]  # 500 users
@@ -327,7 +327,7 @@ def main():
     # Print statistics
     generator.get_statistics()
     
-    print("\n✅ Event generation complete!")
+    print("\nEvent generation complete!")
     print("\nAnomalies to look for:")
     print("1. Rapid page views (10 in <2 min) → payment_failed with database_timeout")
     print("2. Cart abandonment → payment_failed with card_declined")
