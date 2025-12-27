@@ -1,0 +1,15 @@
+services:
+  # Analytical database for high-volume events
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    volumes:
+      - ./clickhouse-init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  # Cache for AI task management and agent memory
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
