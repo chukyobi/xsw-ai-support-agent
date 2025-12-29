@@ -1,0 +1,39 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/mac/Documents/DevWork/AI/xsw-ai-support-agent/ingestion/mock_generator.py", line 391, in <module>
+    main()
+  File "/Users/mac/Documents/DevWork/AI/xsw-ai-support-agent/ingestion/mock_generator.py", line 375, in main
+    upload_to_clickhouse(client, events)
+  File "/Users/mac/Documents/DevWork/AI/xsw-ai-support-agent/ingestion/mock_generator.py", line 346, in upload_to_clickhouse
+    json.dumps(event['properties'])
+  File "/Users/mac/development/anaconda3/lib/python3.11/json/__init__.py", line 231, in dumps
+    return _default_encoder.encode(obj)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/development/anaconda3/lib/python3.11/json/encoder.py", line 200, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/development/anaconda3/lib/python3.11/json/encoder.py", line 249, in iterencode
+    _iterencode = c_make_encoder(
+                  ^^^^^^^^^^^^^^^
+KeyboardInterrupt
+Generating 100000 events with 5.0% anomalies...
+Generated 4697 anomaly events
+Generating 95303 normal events...
+  Progress: 10000/95303 normal events generated
+  Progress: 20000/95303 normal events generated
+  Progress: 30000/95303 normal events generated
+  Progress: 40000/95303 normal events generated
+  Progress: 50000/95303 normal events generated
+  Progress: 60000/95303 normal events generated
+  Progress: 70000/95303 normal events generated
+  Progress: 80000/95303 normal events generated
+  Progress: 90000/95303 normal events generated
+
+Total events generated: 100000
+Events saved to events.ndjson
+
+Connecting to ClickHouse...
+Ensuring 'events' table exists...
+Table 'events' is ready.
+Uploading 100000 events to ClickHouse...

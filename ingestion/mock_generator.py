@@ -313,21 +313,73 @@ class XswEventGenerator:
         print(f"Anomaly ratio: {anomalies/len(self.events)*100:.2f}%")
 
 
+
+from ingestion.clickhouse_client import get_clickhouse_client
+
+def create_events_table(client):
+    """Create events table if it doesn't exist"""
+    print("Ensuring 'events' table exists...")
+    client.command("""
+        CREATE TABLE IF NOT EXISTS events (
+            event_id String,
+            user_id String,
+            event String,
+            timestamp DateTime,
+            properties String
+        ) ENGINE = MergeTree()
+        ORDER BY (event, timestamp)
+    """)
+    print("Table 'events' is ready.")
+
+def upload_to_clickhouse(client, events):
+    """Upload events to ClickHouse in batches"""
+    print(f"Uploading {len(events)} events to ClickHouse...")
+    
+    # Prepare data for insertion
+    data = []
+    for event in events:
+        data.append([
+            event['event_id'],
+            event['user_id'],
+            event['event'],
+            datetime.fromisoformat(event['timestamp']),
+            json.dumps(event['properties'])
+        ])
+    
+    # Insert in batches of 10,000
+    batch_size = 10000
+    total_batches = (len(data) + batch_size - 1) // batch_size
+    
+    for i in range(0, len(data), batch_size):
+        batch = data[i:i + batch_size]
+        client.insert('events', batch, column_names=['event_id', 'user_id', 'event', 'timestamp', 'properties'])
+        print(f"  Uploaded batch {i//batch_size + 1}/{total_batches}")
+    
+    print("Upload complete!")
+
 def main():
     """Main execution function"""
-    generator = PostHogEventGenerator()
+    generator = XswEventGenerator()
     
     # Generate 100,000+ events with 5% anomalies
     events = generator.generate_events(total_events=100000, anomaly_ratio=0.05)
     
     # Save to files
     generator.save_to_ndjson("events.ndjson")  # Recommended format
-    # generator.save_to_file("events.json")  # Alternative format
+    
+    # Upload to ClickHouse
+    try:
+        print("\nConnecting to ClickHouse...")
+        client = get_clickhouse_client()
+        create_events_table(client)
+        upload_to_clickhouse(client, events)
+    except Exception as e:
+        print(f"\nFailed to upload to ClickHouse: {e}")
     
     # Print statistics
     generator.get_statistics()
     
-    print("\nEvent generation complete!")
+    print("\nEvent generation and ingestion complete!")
     print("\nAnomalies to look for:")
     print("1. Rapid page views (10 in <2 min) → payment_failed with database_timeout")
     print("2. Cart abandonment → payment_failed with card_declined")
